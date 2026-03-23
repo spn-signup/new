@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Endless Runner Game</title>
+<style>
+  body { margin:0; background:#111; color:#fff; font-family:sans-serif; text-align:center; }
+  canvas { display:block; margin:20px auto; background:#222; border:3px solid #555; }
+  #info { margin-top:10px; font-size:20px; }
+</style>
+</head>
+<body>
+  
+
+<h1>Endless Runner</h1>
+<p>Press SPACE or UP ARROW to jump</p>
+<canvas id="gameCanvas" width="800" height="400"></canvas>
+<div id="info">Score: 0</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+class Player {
+    constructor() {
+        this.x = 50;
+        this.y = 320;
+        this.width = 50;
+        this.height = 50;
+        this.color = 'red';
+        this.velY = 0;
+        this.jumping = false;
+    }
+
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    update() {
+        this.velY += 0.8; // gravity
+        this.y += this.velY;
+
+        if (this.y + this.height > canvas.height - 20) { // ground collision
+            this.y = canvas.height - 20 - this.height;
+            this.velY = 0;
+            this.jumping = false;
+        }
+    }
+
+    jump() {
+        if (!this.jumping) {
+            this.velY = -15;
+            this.jumping = true;
+        }
+    }
+}
+
+class Obstacle {
+    constructor(x, width, height, speed) {
+        this.x = x;
+        this.y = canvas.height - 20 - height;
+        this.width = width;
+        this.height = height;
+        this.color = 'blue';
+        this.speed = speed;
+    }
+
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    update() {
+        this.x -= this.speed;
+    }
+}
+
+const player = new Player();
+let obstacles = [];
+let score = 0;
+let gameOver = false;
+
+// Keyboard input
+document.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+        player.jump();
+        if(gameOver){
+            location.reload(); // restart on jump after game over
+        }
+    }
+});
+
+// Generate obstacles
+function spawnObstacle() {
+    const width = Math.random() * 30 + 20;
+    const height = Math.random() * 50 + 20;
+    const speed = 5 + score/100; // speed increases over time
+    obstacles.push(new Obstacle(canvas.width, width, height, speed));
+}
+
+// Game loop
+let frameCount = 0;
+function gameLoop() {
+    if(gameOver) return;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Draw ground
+    ctx.fillStyle = '#444';
+    ctx.fillRect(0, canvas.height-20, canvas.width, 20);
+
+    player.update();
+    player.draw();
+
+    if(frameCount % 90 === 0) spawnObstacle();
+
+    obstacles.forEach((obs, index) => {
+        obs.update();
+        obs.draw();
+
+        // Collision detection
+        if(player.x < obs.x + obs.width &&
+           player.x + player.width > obs.x &&
+           player.y < obs.y + obs.height &&
+           player.y + player.height > obs.y){
+            gameOver = true;
+            document.getElementById('info').innerHTML += " | Game Over! Press SPACE to restart";
+        }
+
+        // Remove offscreen obstacles
+        if(obs.x + obs.width < 0){
+            obstacles.splice(index, 1);
+            score++;
+        }
+    });
+
+    document.getElementById('info').innerText = `Score: ${score}`;
+
+    frameCount++;
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+</html>
